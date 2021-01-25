@@ -1,2 +1,2 @@
-# Matrix Factorization Exhibition
-An exhibition of matrix factorization techniques for a recommendation system used on the MovieLens dataset.
+# Recommendation Systems Exhibition
+An exhibition of recommendation systems used on the MovieLens dataset.
