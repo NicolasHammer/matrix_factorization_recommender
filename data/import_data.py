@@ -54,7 +54,7 @@ def load_data_ml100k(data: pd.DataFrame, num_users: int, num_items: int,
     return users, items, scores, inter
 
 # Split and load the dataset
-def split_and_load_ml100k(data: pd.DataFrame, num_users: int, num_items: int,
+def split_and_load_ml100k(data: pd.DataFrame, num_users: int, num_items: int, device: torch.device,
                           split_mode: str = 'seq-aware', feedback: str = 'explicit',
                           test_ratio: float = 0.1, batch_size: int = 256):
     train_data, test_data = split_data_ml100k(
@@ -64,13 +64,13 @@ def split_and_load_ml100k(data: pd.DataFrame, num_users: int, num_items: int,
     test_u, test_i, test_r, _ = load_data_ml100k(
         test_data, num_users, num_items, feedback)
     train_set = TensorDataset(
-        torch.from_numpy(np.array(train_u)),
-        torch.from_numpy(np.array(train_i)),
-        torch.from_numpy(np.array(train_r)))
+        torch.from_numpy(np.array(train_u)).to(device = device),
+        torch.from_numpy(np.array(train_i)).to(device = device),
+        torch.from_numpy(np.array(train_r)).to(device = device))
     test_set = TensorDataset(
-        torch.from_numpy(np.array(test_u)),
-        torch.from_numpy(np.array(test_i)),
-        torch.from_numpy(np.array(test_r)))
+        torch.from_numpy(np.array(test_u)).to(device = device),
+        torch.from_numpy(np.array(test_i)).to(device = device),
+        torch.from_numpy(np.array(test_r)).to(device = device))
     train_iter = DataLoader(train_set, shuffle=True, batch_size=batch_size)
     test_iter = DataLoader(test_set, batch_size=batch_size)
     return num_users, num_items, train_iter, test_iter
