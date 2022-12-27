@@ -1,4 +1,4 @@
-matplotlib
-numpy
-pandas
-torch
+matplotlib==3.6.2
+numpy==1.24.1
+pandas==1.5.2
+torch==1.13.1
