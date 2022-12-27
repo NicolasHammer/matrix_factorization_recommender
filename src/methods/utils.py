@@ -1,5 +1,6 @@
 """Define utility functions used for the recommendation systems."""
 from typing import Any, List
+
 from typing_extensions import Unpack
 
 
