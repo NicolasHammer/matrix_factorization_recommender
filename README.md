@@ -6,7 +6,7 @@ Please work in a virtual environment in Python 3.9. To create the virtual enviro
 ```
 python3.9 -m venv env
 ```
-To activate the virtual environment environment, run...
+To activate the virtual environment, run...
 ```
 source env/bin/activate
 ```
