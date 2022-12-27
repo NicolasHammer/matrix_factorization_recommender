@@ -14,10 +14,6 @@ To install packages from `requirements.txt`, run...
 ```
 python3.9 -m pip install -r requirements.txt
 ```
-To send packages to a `requirements.txt` file, run...
-```
-python3.9 -m pip freeze > requirements.txt
-```
 To deactivate the virtual environment, run...
 ```
 deactivate
