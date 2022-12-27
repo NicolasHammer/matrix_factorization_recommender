@@ -7,8 +7,17 @@ from torch.utils.data import Dataset
 
 
 class Caser(nn.Module):
-    def __init__(self, num_factors, num_users, num_items, L=5, d=16,
-                 d_prime=4, drop_ratio=0.05, **kwargs):
+    def __init__(
+        self,
+        num_factors,
+        num_users,
+        num_items,
+        L=5,
+        d=16,
+        d_prime=4,
+        drop_ratio=0.05,
+        **kwargs
+    ):
         super(Caser, self).__init__(**kwargs)
         self.P = nn.Embedding(num_users, num_factors)  # user embeddings
         self.Q = nn.Embedding(num_items, num_factors)  # item embeddings
@@ -19,13 +28,13 @@ class Caser(nn.Module):
 
         for i in range(1, L + 1):
             self.conv_h.append(
-                nn.Conv2d(in_channels=1, out_channels=d, kernel_size=(i, num_factors)))
+                nn.Conv2d(in_channels=1, out_channels=d, kernel_size=(i, num_factors))
+            )
             self.max_pool.append(nn.MaxPool1d(L - i + 1))
 
         # Vertical convolution layer
         self.d_prime = d_prime
-        self.conv_v = nn.Conv2d(
-            in_channels=1, out_channels=d_prime, kernel_size=(L, 1))
+        self.conv_v = nn.Conv2d(in_channels=1, out_channels=d_prime, kernel_size=(L, 1))
 
         # Fully-connected layer
         self.fc1_dim_v = d_prime * num_factors
@@ -33,7 +42,7 @@ class Caser(nn.Module):
 
         self.fc = nn.Sequential(
             nn.Linear(self.fc1_dim_v + self.fc1_dim_h, num_factors, bias=True),
-            nn.ReLU()
+            nn.ReLU(),
         )
         self.Q_prime = nn.Embedding(num_items, num_factors * 2)
         self.b = nn.Embedding(num_items, 1)
@@ -72,8 +81,7 @@ class Caser(nn.Module):
 
 
 class SeqDataset(Dataset):
-    def __init__(self, user_ids, item_ids, L, num_users, num_items,
-                 candidates):
+    def __init__(self, user_ids, item_ids, L, num_users, num_items, candidates):
         user_ids, item_ids = np.array(user_ids), np.array(item_ids)
         sort_idx = np.array(sorted(range(len(user_ids)), key=lambda k: user_ids[k]))
         u_ids, i_ids = user_ids[sort_idx], item_ids[sort_idx]
@@ -83,10 +91,16 @@ class SeqDataset(Dataset):
         temp = sorted(temp.items(), key=lambda x: x[0])
         u_ids = np.array([i[0] for i in temp])
         idx = np.array([i[1][0] for i in temp])
-        self.ns = ns = int(sum([c - L if c >= L + 1 else 1 for c
-                                in np.array([len(i[1]) for i in temp])]))
+        self.ns = ns = int(
+            sum(
+                [
+                    c - L if c >= L + 1 else 1
+                    for c in np.array([len(i[1]) for i in temp])
+                ]
+            )
+        )
         self.seq_items = np.zeros((ns, L))
-        self.seq_users = np.zeros(ns, dtype='int32')
+        self.seq_users = np.zeros(ns, dtype="int32")
         self.seq_tgt = np.zeros((ns, 1))
         self.test_seq = np.zeros((num_users, L))
         test_users, _uid = np.empty(num_users), None
@@ -99,9 +113,9 @@ class SeqDataset(Dataset):
 
     def _win(self, tensor, window_size, step_size=1):
         if len(tensor) - window_size >= 0:
-            for i in range(len(tensor), 0, - step_size):
+            for i in range(len(tensor), 0, -step_size):
                 if i - window_size >= 0:
-                    yield tensor[i - window_size:i]
+                    yield tensor[i - window_size : i]
                 else:
                     break
         else:
@@ -110,7 +124,7 @@ class SeqDataset(Dataset):
     def _seq(self, u_ids, i_ids, idx, max_len):
         for i in range(len(idx)):
             stop_idx = None if i >= len(idx) - 1 else int(idx[i + 1])
-            for s in self._win(i_ids[int(idx[i]):stop_idx], max_len):
+            for s in self._win(i_ids[int(idx[i]) : stop_idx], max_len):
                 yield (int(u_ids[i]), s)
 
     def __len__(self):
@@ -119,5 +133,4 @@ class SeqDataset(Dataset):
     def __getitem__(self, idx):
         neg = list(self.all_items - set(self.cand[int(self.seq_users[idx])]))
         i = random.randint(0, len(neg) - 1)
-        return (self.seq_users[idx], self.seq_items[idx], self.seq_tgt[idx],
-                neg[i])
+        return (self.seq_users[idx], self.seq_items[idx], self.seq_tgt[idx], neg[i])

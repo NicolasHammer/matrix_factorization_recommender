@@ -6,8 +6,7 @@ from torch.utils.data import Dataset
 
 
 class NeuMF(nn.Module):
-    def __init__(self, num_factors, num_users, num_items, nums_hiddens,
-                 **kwargs):
+    def __init__(self, num_factors, num_users, num_items, nums_hiddens, **kwargs):
         super(NeuMF, self).__init__(**kwargs)
         # Embeddings for GMF
         self.P = nn.Embedding(num_users, num_factors)
@@ -22,18 +21,24 @@ class NeuMF(nn.Module):
         if nums_hiddens:
             # Initial layer
             self.linear_layers.extend(
-                (nn.Linear(num_factors * 2, nums_hiddens[0], bias=True), nn.ReLU()))
+                (nn.Linear(num_factors * 2, nums_hiddens[0], bias=True), nn.ReLU())
+            )
 
             # Hidden layers
             for i in range(1, len(nums_hiddens)):
                 self.linear_layers.extend(
-                    (nn.Linear(nums_hiddens[i - 1], nums_hiddens[i], bias=True), nn.ReLU()))
+                    (
+                        nn.Linear(nums_hiddens[i - 1], nums_hiddens[i], bias=True),
+                        nn.ReLU(),
+                    )
+                )
 
         # Final layer
         self.prediction_layer = nn.Sequential(
             nn.Linear(
-                num_factors + (nums_hiddens[-1] if nums_hiddens else 0), 1, bias=False),
-            nn.Sigmoid()
+                num_factors + (nums_hiddens[-1] if nums_hiddens else 0), 1, bias=False
+            ),
+            nn.Sigmoid(),
         )
 
     def forward(self, user_id, item_id):
@@ -51,7 +56,8 @@ class NeuMF(nn.Module):
             passed_value = layer(passed_value)
 
         # Final step
-        return self.prediction_layer(torch.cat((gmf, passed_value), axis = 1))
+        return self.prediction_layer(torch.cat((gmf, passed_value), axis=1))
+
 
 # Create custom dataset
 class PRDataset(Dataset):
@@ -68,4 +74,3 @@ class PRDataset(Dataset):
         neg_items = list(self.all - set(self.cand[int(self.users[idx])]))
         indices = random.randint(0, len(neg_items) - 1)
         return self.users[idx], self.items[idx], neg_items[indices]
-        
