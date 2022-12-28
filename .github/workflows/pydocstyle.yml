@@ -1,0 +1,19 @@
+name: pydocstyle
+
+on:
+  - push
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Install pydocstyle
+        run: python3.9 -m pip install pydocstyle
+        shell: bash
+      - name: Run pydocstyle
+        run: python3.9 -m pydocstyle .
+        shell: bash
