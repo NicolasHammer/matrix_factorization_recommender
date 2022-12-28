@@ -1,6 +1,5 @@
 """Define utility functions used for the recommendation systems."""
 from typing import Any, List
-
 from typing_extensions import Unpack
 
 
@@ -38,5 +37,8 @@ class Accumulator:
 
         Args:
             idx: The index of the item from the accumulator to get.
+
+        Returns:
+            The accumulated item at a particular index.
         """
         return self.data[idx]
