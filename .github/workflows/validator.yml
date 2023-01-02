@@ -23,7 +23,7 @@ jobs:
       - uses: isort/isort-action@master
       # pydocstyle
       - name: Install pydocstyle
-        run: python3.8 -m pip install pydocstyle
+        run: python3.9 -m pip install pydocstyle
         shell: bash
       - name: Run pydocstyle
         run: python3.9 -m pydocstyle .
