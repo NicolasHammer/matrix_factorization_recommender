@@ -4,6 +4,7 @@ import random
 import torch
 from torch import nn
 from torch.utils.data import Dataset
+from torch import Tensor
 
 
 class NeuMF(nn.Module):
@@ -51,7 +52,7 @@ class NeuMF(nn.Module):
             nn.Sigmoid(),
         )
 
-    def forward(self, user_id, item_id):
+    def forward(self, user_id: int, item_id: int) -> Tensor:
         # Generalized Matrix Factorization
         p_mf = self.P(user_id)
         q_mf = self.Q(item_id)
