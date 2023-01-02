@@ -5,26 +5,48 @@ on:
   
 jobs:
   build:
+    name: validator
     runs-on: ubuntu-latest
     steps:
       # Set up environment
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
-      - name: Install dependencies
+      - name: Upgrade pip
+        run: python3.9 -m pip install --upgrade pip
+        shell: bash
+      - name: Install Python dependencies
         run: python3.9 -m pip install -r requirements.txt
         shell: bash
       # black
-      - uses: psf/black@stable
+      - name: Execute black GitHub action
+        uses: psf/black@stable
         with:
           jupyter: true
       # isort
-      - uses: isort/isort-action@master
+      - name: Execute isort GitHub action
+        uses: isort/isort-action@master
       # pydocstyle
       - name: Install pydocstyle
         run: python3.9 -m pip install pydocstyle
         shell: bash
       - name: Run pydocstyle
-        run: python3.9 -m pydocstyle .
+        run: python3.9 -m pydocstyle $(git ls-files '*.py')
+        shell: bash
+      # pylint
+      - name: Install pylint
+        run: python3.9 -m pip install pylint
+        shell: bash
+      - name: Run pylint
+        run: python3.9 -m pylint $(git ls-files '*.py')
+        shell: bash
+      # mypy
+      - name: Install mypy
+        run: python3.9 -m pip install mypy
+        shell: bash
+      - name: Run mypy
+        run: python3.9 -m mypy $(git ls-files '*.py')
         shell: bash
