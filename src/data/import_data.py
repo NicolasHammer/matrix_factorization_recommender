@@ -1,21 +1,42 @@
+"""Import data to train/evaluate the recommendation systems on."""
+from enum import Enum
+from typing import List, Tuple
+
 import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
 
-# Split dataset
+class FeedbackMode(Enum):
+    """The different tpyes of feedback for the dataset to provide."""
+    EXPLICIT = "explicit"
+    IMPLICIT = "implicit"
+
+class SplitMode(Enum):
+    """The different types of splits on the MovieLens 100k dataset."""
+    SEQ_AWARE = "seq-aware"
+    RANDOM = "random"
+
+
 def split_data_ml100k(
     data: pd.DataFrame,
     num_users: int,
-    num_items: int,
-    split_mode: str = "random",
+    split_mode: SplitMode = SplitMode.RANDOM,
     test_ratio: float = 0.1,
-):
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Split the dataset in random mode or sequence aware mode.
+
+    Args:
+        data: The MovieLens 100k dataset.
+        num_users: The number of users in the dataset.
+        split_mode
+
+    Return:
+        train_data: The data to train the recommendation systems on.
+        test-data: The data to test the recommendation systems on.
     """
-    Split the dataset in random mode or seq-aware mode.
-    """
-    if split_mode == "seq-aware":
+    if split_mode == SplitMode.SEQ_AWARE:
         train_items, test_items, train_list = {}, {}, []
 
         for line in data.itertuples():
@@ -31,32 +52,32 @@ def split_data_ml100k(
         train_data = [item for item in train_list if item not in test_data]
         train_data = pd.DataFrame(train_data)
         test_data = pd.DataFrame(test_data)
-    elif split_mode == "random":
-        mask = [
-            True if x == 1 else False
+    elif split_mode == SplitMode.RANDOM:
+        mask: List[bool] = [
+            x == 1
             for x in np.random.uniform(0, 1, len(data)) < 1 - test_ratio
         ]
         neg_mask = [not x for x in mask]
         train_data, test_data = data[mask], data[neg_mask]
     else:
-        return ValueError('split_mode must be "random" or "seq-aware"')
+        return ValueError(f"split_mode must be {SplitMode.RANDOM} or {SplitMode.SEQ_AWARE}")
 
     return train_data, test_data
 
 
 # Load the dataset
 def load_data_ml100k(
-    data: pd.DataFrame, num_users: int, num_items: int, feedback: str = "explicit"
+    data: pd.DataFrame, num_users: int, num_items: int, feedback: str = FeedbackMode.EXPLICIT
 ):
     users, items, scores = [], [], []
-    inter = np.zeros((num_items, num_users)) if feedback == "explicit" else {}
+    inter = np.zeros((num_items, num_users)) if feedback == FeedbackMode.EXPLICIT else {}
     for line in data.itertuples():
         user_index, item_index = int(line[1] - 1), int(line[2] - 1)
-        score = int(line[3]) if feedback == "explicit" else 1
+        score = int(line[3]) if feedback == FeedbackMode.EXPLICIT else 1
         users.append(user_index)
         items.append(item_index)
         scores.append(score)
-        if feedback == "implicit":
+        if feedback == FeedbackMode.IMPLICIT:
             inter.setdefault(user_index, []).append(item_index)
         else:
             inter[item_index, user_index] = score
@@ -69,8 +90,8 @@ def split_and_load_ml100k(
     num_users: int,
     num_items: int,
     device: torch.device,
-    split_mode: str = "seq-aware",
-    feedback: str = "explicit",
+    split_mode: SplitMode = SplitMode.SEQ_AWARE,
+    feedback: FeedbackMode = FeedbackMode.EXPLICIT,
     test_ratio: float = 0.1,
     batch_size: int = 256,
 ):

@@ -1,4 +1,4 @@
-import numpy as np
+"""Create the matrix factorization model."""
 import torch
 import torch.nn as nn
 
