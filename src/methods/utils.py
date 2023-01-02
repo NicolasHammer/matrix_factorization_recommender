@@ -1,6 +1,5 @@
 """Define utility functions used for the recommendation systems."""
-from typing import Any, List
-from typing_extensions import Unpack
+from typing import List
 
 
 class Accumulator:
@@ -17,14 +16,14 @@ class Accumulator:
         """
         self.data = [0.0] * n
 
-    def add(self, *variables_to_add: Unpack[Any]) -> None:
+    def add(self, **variables_to_add) -> None:
         """Add data to the existing accumulating sums..
 
         variables_to_add: variables that can be converted to floats whose
-            argument position corresponds to what element of the accumulator's
-            data array to add to.
+            position in the argument list correspond to what element of the 
+            accumulator's data array to add to.
         """
-        for (a, b), i in enumerate(zip(self.data, variables_to_add)):
+        for i, (a, b) in enumerate(zip(self.data, variables_to_add)):
             self.data[i] = a + float(b)
 
     def reset(self) -> None:

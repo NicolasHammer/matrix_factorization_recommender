@@ -1,6 +1,7 @@
 """Define the AutoRec recommendation system."""
 import torch
 from torch import nn
+from torch import Tensor
 
 
 class AutoRec(nn.Module):
@@ -10,16 +11,25 @@ class AutoRec(nn.Module):
     decoder: nn.Linear
     dropout: nn.Dropout
 
-    def __init__(self, num_hidden: int, num_users: int, dropout: float = 0.05):
+    def __init__(
+        self, num_hidden: int, num_users: int, dropout: float = 0.05
+    ) -> None:
         super(AutoRec, self).__init__()
-        self.encoder = nn.Linear(num_users, num_hidden, bias=True)
-        self.decoder = nn.Linear(num_hidden, num_users, bias=True)
-        self.dropout = nn.Dropout(dropout)
 
+        # Intialize the encoder of the AutoRec model with values from the
+        # normal distribution
+        self.encoder = nn.Linear(num_users, num_hidden, bias=True)
         nn.init.normal_(self.encoder.weight, std=0.01)
+
+        # Initialize the decoder of the AutoRec model with values from the
+        # normal distribution
+        self.decoder = nn.Linear(num_hidden, num_users, bias=True)
         nn.init.normal_(self.decoder.weight, std=0.01)
 
-    def forward(self, input_tensor: torch.Tensor):
+        # Initialize the dropout module
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, input_tensor: Tensor) -> Tensor:
         """The forward pass of the recommendation system.
 
         The sign of the forward pass of the recommendation system depends on
@@ -31,9 +41,9 @@ class AutoRec(nn.Module):
         Returns:
             The result of the forward pass of the recommendation system.
         """
-        hidden: torch.Tensor = self.dropout(self.encoder(input_tensor))
-        pred: torch.Tensor = self.decoder(hidden)
+        hidden: Tensor = self.dropout(self.encoder(input_tensor))
+        pred: Tensor = self.decoder(hidden)
 
-        # Result of forward pass dependes on whether the model is training
+        # Result of forward pass depends on whether the model is training
         # or evaluating
         return pred * torch.sign(input_tensor) if self.training is True else pred

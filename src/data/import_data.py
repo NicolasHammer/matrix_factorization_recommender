@@ -107,7 +107,7 @@ def load_data_ml100k(
             inter.setdefault(user_index, []).append(item_index)
         else:
             inter[item_index, user_index] = score
-            
+
     return users, items, scores, inter
 
 

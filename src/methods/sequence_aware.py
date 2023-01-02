@@ -1,26 +1,33 @@
+"""Define the Caser model."""
 import random
 
 import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import Dataset
+from torch import Tensor
 
 
 class Caser(nn.Module):
+    """The Caser model as a recommendation system."""
+
+    P: nn.Embedding
+    Q: nn.Embedding
+
     def __init__(
         self,
-        num_factors,
-        num_users,
-        num_items,
-        L=5,
-        d=16,
-        d_prime=4,
-        drop_ratio=0.05,
+        num_factors: int,
+        num_users: int,
+        num_items: int,
+        L: int=5,
+        d: int=16,
+        d_prime: int=4,
+        drop_ratio: float=0.05,
         **kwargs
     ):
         super(Caser, self).__init__(**kwargs)
-        self.P = nn.Embedding(num_users, num_factors)  # user embeddings
-        self.Q = nn.Embedding(num_items, num_factors)  # item embeddings
+        self.P = nn.Embedding(num_users, num_factors) 
+        self.Q = nn.Embedding(num_items, num_factors)
 
         # Horizontal convolution layer
         self.d = d
@@ -48,7 +55,7 @@ class Caser(nn.Module):
         self.b = nn.Embedding(num_items, 1)
         self.dropout = nn.Dropout(drop_ratio)
 
-    def forward(self, user_id, seq, item_id):
+    def forward(self, user_id: int, seq, item_id: int) -> Tensor:
         # Construct embeddings
         item_embs = torch.unsqueeze(self.Q(seq), 1)
         user_emb = self.P(user_id)
@@ -127,7 +134,7 @@ class SeqDataset(Dataset):
             for s in self._win(i_ids[int(idx[i]) : stop_idx], max_len):
                 yield (int(u_ids[i]), s)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.ns
 
     def __getitem__(self, idx):
