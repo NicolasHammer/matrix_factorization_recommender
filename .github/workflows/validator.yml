@@ -1,0 +1,27 @@
+name: validator
+
+on:
+  - push
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Set up environment
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: python3.9 -m pip install -r requirements.txt
+        shell: bash
+      # black
+      - uses: psf/black@stable
+        with:
+          jupyter: true
+      # isort
+      - uses: isort/isort-action@master
+      # pydocstyle
+      - name: pydocstyle
+        run: python3.9 -m pydocstyle .
+        shell: bash
