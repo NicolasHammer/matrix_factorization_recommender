@@ -10,7 +10,7 @@ class AutoRec(nn.Module):
     decoder: nn.Linear
     dropout: nn.Dropout
 
-    def __init__(self, num_hidden: int, num_users: int, dropout: float=0.05):
+    def __init__(self, num_hidden: int, num_users: int, dropout: float = 0.05):
         super(AutoRec, self).__init__()
         self.encoder = nn.Linear(num_users, num_hidden, bias=True)
         self.decoder = nn.Linear(num_hidden, num_users, bias=True)
@@ -24,7 +24,7 @@ class AutoRec(nn.Module):
 
         The sign of the forward pass of the recommendation system depends on
         whether or not the recommendation system is training or evaluating.
-        
+
         Args:
             input_tensor: The input tensor to the forward pass
 
@@ -36,8 +36,4 @@ class AutoRec(nn.Module):
 
         # Result of forward pass dependes on whether the model is training
         # or evaluating
-        return (
-            pred * torch.sign(input_tensor)
-            if self.training is True
-            else pred
-        )
+        return pred * torch.sign(input_tensor) if self.training is True else pred
