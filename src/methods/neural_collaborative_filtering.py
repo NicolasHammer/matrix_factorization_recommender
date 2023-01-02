@@ -1,3 +1,4 @@
+"""Define the Neural Matrix Factorization model."""
 import random
 
 import torch
@@ -6,7 +7,16 @@ from torch.utils.data import Dataset
 
 
 class NeuMF(nn.Module):
-    def __init__(self, num_factors, num_users, num_items, nums_hiddens, **kwargs):
+    """The Neural Matrix Factorization recommendation system model."""
+
+    def __init__(
+        self, 
+        num_factors: int, 
+        num_users: int, 
+        num_items: int, 
+        nums_hiddens: int, 
+        **kwargs
+    ) -> None:
         super(NeuMF, self).__init__(**kwargs)
         # Embeddings for GMF
         self.P = nn.Embedding(num_users, num_factors)
